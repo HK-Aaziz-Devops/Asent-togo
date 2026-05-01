@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ASENT - Administration</title>
+  <style>
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .admin-screen {
+      display: block;
+    }
+    .admin-nav {
+      background: #0D3D22;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .nav-btns {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .btn-export {
+      background: #2E9C5A;
+      color: #fff;
+      border: none;
+      padding: 0.45rem 1.1rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-site {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.45rem 1rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-export:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-screen" id="admin-screen">
+    <div class="admin-nav">
+      <div class="nav-btns">
+        <button class="btn-export" onclick="exportSite()">Exporter</button>
+        <a href="https://hk-aaziz-devops.github.io/Asent-togo/" target="_blank" class="btn-site">Voir le site</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let SITE_TMPL = '';
+
+    async function loadTemplate() {
+      try {
+        // Charger index.html depuis la racine du projet GitHub Pages
+        const res = await fetch('index.html');
+        if (!res.ok) throw new Error('Erreur HTTP ' + res.status);
+        SITE_TMPL = await res.text();
+        window.SITE_TMPL = SITE_TMPL;
+        console.log('Template chargé avec succès');
+        document.querySelector('.btn-export').disabled = false;
+      } catch (err) {
+        console.error('Impossible de charger le template', err);
+        toast('Erreur de chargement du template','err');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.btn-export').disabled = true;
+      loadTemplate();
+    });
+
+    function toast(msg, type) {
+      alert(msg); // tu peux remplacer par ton système de notification
+    }
+
+    // Ta fonction exportSite() reste inchangée
+    function exportSite(){
+      toast('Génération du site...');
+      // ... ton code existant ...
+    }
+  </script>
+</body>
+</html>
