@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASENT — Administration</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange: #D44000;
+      --dark: #111;
+      --mid: #1e1e1e;
+      --panel: #252525;
+      --border: #333;
+      --text: #e0e0e0;
+      --muted: #888;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --input-bg: #1a1a1a;
+    }
+
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ---- TOP BAR ---- */
+    header {
+      background: var(--mid);
+      border-bottom: 2px solid var(--orange);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo { font-size: 1rem; font-weight: 700; letter-spacing: .06em; }
+    .logo span { color: var(--orange); }
+
+    .btn-export {
+      background: var(--orange);
+      color: white;
+      border: none;
+      padding: .5rem 1.4rem;
+      border-radius: 3px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-export:hover { background: #b83500; }
+
+    /* ---- LOGIN ---- */
+    #login-screen {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .login-box h2 { font-size: 1.2rem; margin-bottom: 1.5rem; }
+    .login-box input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: .7rem 1rem;
+      font-size: .95rem;
+      margin-bottom: 1rem;
+    }
+    .login-box button {
+      width: 100%;
+      background: var(--orange);
+      color: white;
+      border: none;
+      padding: .75rem;
+      border-radius: 4px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-error { color: var(--red); font-size: .85rem; margin-top: .8rem; }
+
+    /* ---- APP ---- */
+    #app { display: none; flex: 1; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ---- SIDEBAR ---- */
+    aside {
+      background: var(--mid);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .sidebar-label {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 1.2rem;
+      margin-bottom: .5rem;
+      margin-top: 1.2rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+
+    .side-btn {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: .6rem 1.4rem;
+      color: #bbb;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+
+    .side-btn:hover { background: rgba(255,255,255,.04); color: white; }
+    .side-btn.active { background: rgba(212,64,0,.15); color: white; border-left-color: var(--orange); }
+
+    /* ---- MAIN ---- */
+    main { padding: 2rem; overflow-y: auto; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    h1.page-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-bottom: .8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ---- FORM ELEMENTS ---- */
+    label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: .4rem;
+    }
+
+    input[type=text], input[type=date], textarea, select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: .6rem .85rem;
+      font-size: .9rem;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    input[type=text]:focus, input[type=date]:focus, textarea:focus { border-color: var(--orange); }
+
+    textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .field-group { margin-bottom: 1rem; }
+
+    /* ---- UPLOAD ---- */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .upload-zone:hover { border-color: var(--orange); }
+    .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone .upload-icon { font-size: 2rem; margin-bottom: .5rem; }
+    .upload-zone p { font-size: .82rem; color: var(--muted); }
+
+    .preview-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      margin-top: .5rem;
+    }
+
+    .preview-label {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: .3rem;
+    }
+
+    /* ---- BUTTONS ---- */
+    .btn {
+      display: inline-block;
+      padding: .5rem 1.2rem;
+      border-radius: 3px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--orange); color: white; }
+    .btn-danger { background: var(--red); color: white; }
+    .btn-ghost { background: rgba(255,255,255,.08); color: var(--text); }
+
+    /* ---- CARDS LIST ---- */
+    .items-list { display: flex; flex-direction: column; gap: .8rem; margin-bottom: 2rem; }
+
+    .item-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .item-card .item-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .item-card .item-thumb-placeholder {
+      width: 50px;
+      height: 50px;
+      background: var(--border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+
+    .item-card .item-info { flex: 1; min-width: 0; }
+    .item-card .item-info .item-title { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-card .item-info .item-sub { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+    .item-card .item-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+
+    /* ---- ADD FORM AREA ---- */
+    .add-block {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .add-block h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1.2rem; }
+
+    /* ---- TOAST ---- */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--green);
+      color: white;
+      padding: .8rem 1.5rem;
+      border-radius: 4px;
+      font-size: .88rem;
+      font-weight: 600;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+    .section-note { font-size: .83rem; color: var(--muted); margin-bottom: 1.2rem; }
+
+    .tag {
+      display: inline-block;
+      background: rgba(212,64,0,.2);
+      color: var(--orange);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: .2rem .6rem;
+      border-radius: 2px;
+      margin-bottom: .8rem;
+    }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ASENT <span>Admin</span></div>
+  <button class="btn-export" onclick="exportSite()">Exporter index.html</button>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>Accès Administration</h2>
+    <input type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') login()">
+    <button onclick="login()">Connexion</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <aside>
+      <div class="sidebar-label">Identité</div>
+      <button class="side-btn active" onclick="showPage('p-identite')">Logo & Photos</button>
+
+      <div class="sidebar-label">Contenu</div>
+      <button class="side-btn" onclick="showPage('p-bureau')">Bureau Exécutif</button>
+      <button class="side-btn" onclick="showPage('p-actualites')">Actualités</button>
+      <button class="side-btn" onclick="showPage('p-agenda')">Agenda</button>
+      <button class="side-btn" onclick="showPage('p-bourses')">Bourses</button>
+      <button class="side-btn" onclick="showPage('p-galerie')">Galerie</button>
+    </aside>
+
+    <main>
+
+      <!-- PAGE: IDENTITE -->
+      <div class="page active" id="p-identite">
+        <h1 class="page-title">Logo & Photos</h1>
+
+        <div class="add-block">
+          <h3>Logo ASENT</h3>
+          <p class="section-note">Affiché dans la barre de navigation.</p>
+          <div class="upload-zone" onclick="triggerUpload('logo-file')">
+            <input type="file" id="logo-file" accept="image/*" onchange="handleSingle(this, 'logo', 'logo-preview')">
+            <div class="upload-icon">🖼️</div>
+            <p>Cliquer pour choisir une image</p>
+          </div>
+          <img id="logo-preview" class="preview-thumb" style="display:none">
+          <div class="preview-label" id="logo-preview-label"></div>
+        </div>
+
+        <div class="add-block" style="margin-top:1.5rem">
+          <h3>Photo de groupe (Bureau Exécutif)</h3>
+          <p class="section-note">Affiché en page d'accueil sous les statistiques.</p>
+          <div class="upload-zone" onclick="triggerUpload('groupe-file')">
+            <input type="file" id="groupe-file" accept="image/*" onchange="handleSingle(this, 'photo_groupe', 'groupe-preview')">
+            <div class="upload-icon">📸</div>
+            <p>Cliquer pour choisir une image</p>
+          </div>
+          <img id="groupe-preview" class="preview-thumb" style="display:none">
+          <div class="preview-label" id="groupe-preview-label"></div>
+        </div>
+
+        <div class="add-block" style="margin-top:1.5rem">
+          <h3>Armoiries du Niger</h3>
+          <p class="section-note">Affiché dans la section À propos.</p>
+          <div class="upload-zone" onclick="triggerUpload('armoiries-file')">
+            <input type="file" id="armoiries-file" accept="image/*" onchange="handleSingle(this, 'armoiries', 'armoiries-preview')">
+            <div class="upload-icon">🏛️</div>
+            <p>Cliquer pour choisir une image</p>
+          </div>
+          <img id="armoiries-preview" class="preview-thumb" style="display:none">
+          <div class="preview-label" id="armoiries-preview-label"></div>
+        </div>
+      </div>
+
+      <!-- PAGE: BUREAU -->
+      <div class="page" id="p-bureau">
+        <h1 class="page-title">Bureau Exécutif</h1>
+        <p class="section-note">Ajoutez, modifiez ou supprimez les membres. La photo de chaque membre est optionnelle.</p>
+
+        <div class="items-list" id="bureau-list"></div>
+
+        <div class="add-block">
+          <h3>Ajouter un membre</h3>
+          <div class="form-row">
+            <div class="field-group">
+              <label>Nom complet</label>
+              <input type="text" id="b-nom" placeholder="Ex: Moussa Ibrahim">
+            </div>
+            <div class="field-group">
+              <label>Poste</label>
+              <input type="text" id="b-poste" placeholder="Ex: Président">
+            </div>
+          </div>
+          <label>Photo (optionnel)</label>
+          <div class="upload-zone" onclick="triggerUpload('b-photo-file')">
+            <input type="file" id="b-photo-file" accept="image/*" onchange="previewLocal(this, 'b-photo-preview')">
+            <div class="upload-icon">👤</div>
+            <p>Cliquer pour choisir une photo</p>
+          </div>
+          <img id="b-photo-preview" class="preview-thumb" style="display:none">
+          <button class="btn btn-primary" onclick="addBureau()">Ajouter</button>
+        </div>
+      </div>
+
+      <!-- PAGE: ACTUALITES -->
+      <div class="page" id="p-actualites">
+        <h1 class="page-title">Actualités</h1>
+        <div class="items-list" id="actu-list"></div>
+
+        <div class="add-block">
+          <h3>Ajouter une actualité</h3>
+          <div class="field-group">
+            <label>Titre</label>
+            <input type="text" id="a-titre" placeholder="Titre de l'actualité">
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>Date</label>
+              <input type="date" id="a-date">
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Contenu</label>
+            <textarea id="a-contenu" placeholder="Texte de l'actualité..."></textarea>
+          </div>
+          <label>Image (optionnel)</label>
+          <div class="upload-zone" onclick="triggerUpload('a-img-file')">
+            <input type="file" id="a-img-file" accept="image/*" onchange="previewLocal(this, 'a-img-preview')">
+            <div class="upload-icon">🖼️</div>
+            <p>Cliquer pour choisir une image</p>
+          </div>
+          <img id="a-img-preview" class="preview-thumb" style="display:none">
+          <button class="btn btn-primary" onclick="addActu()">Ajouter</button>
+        </div>
+      </div>
+
+      <!-- PAGE: AGENDA -->
+      <div class="page" id="p-agenda">
+        <h1 class="page-title">Agenda</h1>
+        <div class="items-list" id="agenda-list-admin"></div>
+
+        <div class="add-block">
+          <h3>Ajouter un événement</h3>
+          <div class="field-group">
+            <label>Titre de l'événement</label>
+            <input type="text" id="ag-titre" placeholder="Ex: Assemblée Générale">
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>Date</label>
+              <input type="date" id="ag-date">
+            </div>
+            <div class="field-group">
+              <label>Lieu</label>
+              <input type="text" id="ag-lieu" placeholder="Ex: Campus de l'UL">
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Description (optionnel)</label>
+            <textarea id="ag-desc" placeholder="Détails sur l'événement..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="addAgenda()">Ajouter</button>
+        </div>
+      </div>
+
+      <!-- PAGE: BOURSES -->
+      <div class="page" id="p-bourses">
+        <h1 class="page-title">Bourses & Formulaires</h1>
+        <p class="section-note">Chargez les fichiers PDF pour chaque formulaire.</p>
+
+        <div class="items-list" id="bourses-list"></div>
+      </div>
+
+      <!-- PAGE: GALERIE -->
+      <div class="page" id="p-galerie">
+        <h1 class="page-title">Galerie Photos</h1>
+        <div class="items-list" id="galerie-list-admin"></div>
+
+        <div class="add-block">
+          <h3>Ajouter des photos</h3>
+          <label>Légende (optionnel)</label>
+          <input type="text" id="g-cap" placeholder="Ex: Journée culturelle 2026">
+          <label>Photos (sélection multiple possible)</label>
+          <div class="upload-zone" onclick="triggerUpload('g-file')">
+            <input type="file" id="g-file" accept="image/*" multiple onchange="addGaleriePhotos(this)">
+            <div class="upload-icon">📷</div>
+            <p>Cliquer pour choisir une ou plusieurs photos</p>
+          </div>
+          <div id="g-preview-row" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast">Modifications sauvegardées</div>
+
+<script>
+/* ========================
+   AUTH
+   ======================== */
+const PWD_HASH = 'db018aced20d0e59c4fdf033a9eea13e6acd4220255362458021033cd71de793';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function login() {
+  const pwd = document.getElementById('pwd-input').value;
+  const hash = await sha256(pwd);
+  if (hash === PWD_HASH) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('login-error').textContent = 'Mot de passe incorrect.';
+  }
+}
+
+/* ========================
+   SITE DATA
+   ======================== */
+let D = {
+  logo: '',
+  photo_groupe: '',
+  armoiries: '',
+  bureau: [],
+  actualites: [],
+  agenda: [],
+  bourses: [
+    { titre: "Formulaire d'activation de bourse", fichier: '' },
+    { titre: "Formulaire de renouvellement de bourse", fichier: '' },
+    { titre: 'Formulaire 2e cycle', fichier: '' }
+  ],
+  galerie: []
+};
+
+/* ========================
+   INIT
+   ======================== */
+function initAdmin() {
+  renderBureau();
+  renderActu();
+  renderAgenda();
+  renderBourses();
+  renderGalerie();
+}
+
+/* ========================
+   NAV
+   ======================== */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ========================
+   UPLOAD HELPERS
+   ======================== */
+function triggerUpload(id) {
+  document.getElementById(id).click();
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = () => rej();
+    r.readAsDataURL(file);
+  });
+}
+
+async function handleSingle(input, dataKey, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const b64 = await toBase64(file);
+  D[dataKey] = b64;
+  const prev = document.getElementById(previewId);
+  prev.src = b64;
+  prev.style.display = 'block';
+  const lbl = document.getElementById(previewId + '-label');
+  if (lbl) lbl.textContent = file.name;
+  toast('Image chargée.');
+}
+
+function previewLocal(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  r.readAsDataURL(file);
+}
+
+/* ========================
+   BUREAU
+   ======================== */
+function renderBureau() {
+  const el = document.getElementById('bureau-list');
+  if (!D.bureau.length) { el.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucun membre ajouté.</p>'; return; }
+  el.innerHTML = D.bureau.map((m, i) => `
+    <div class="item-card">
+      ${m.photo
+        ? `<img class="item-thumb" src="${m.photo}" alt="${m.nom}">`
+        : `<div class="item-thumb-placeholder">Photo</div>`}
+      <div class="item-info">
+        <div class="item-title">${m.nom}</div>
+        <div class="item-sub">${m.poste}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" onclick="delBureau(${i})">Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addBureau() {
+  const nom = document.getElementById('b-nom').value.trim();
+  const poste = document.getElementById('b-poste').value.trim();
+  if (!nom || !poste) { alert('Nom et poste obligatoires.'); return; }
+  const fileInput = document.getElementById('b-photo-file');
+  let photo = '';
+  if (fileInput.files[0]) photo = await toBase64(fileInput.files[0]);
+  D.bureau.push({ nom, poste, photo });
+  document.getElementById('b-nom').value = '';
+  document.getElementById('b-poste').value = '';
+  fileInput.value = '';
+  document.getElementById('b-photo-preview').style.display = 'none';
+  renderBureau();
+  toast('Membre ajouté.');
+}
+
+function delBureau(i) {
+  if (!confirm('Supprimer ce membre ?')) return;
+  D.bureau.splice(i, 1);
+  renderBureau();
+  toast('Membre supprimé.');
+}
+
+/* ========================
+   ACTUALITES
+   ======================== */
+function renderActu() {
+  const el = document.getElementById('actu-list');
+  if (!D.actualites.length) { el.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucune actualité.</p>'; return; }
+  el.innerHTML = D.actualites.map((a, i) => `
+    <div class="item-card">
+      ${a.image ? `<img class="item-thumb" src="${a.image}" alt="">` : `<div class="item-thumb-placeholder">Pas d'img</div>`}
+      <div class="item-info">
+        <div class="item-title">${a.titre}</div>
+        <div class="item-sub">${a.date}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" onclick="delActu(${i})">Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addActu() {
+  const titre = document.getElementById('a-titre').value.trim();
+  const date = document.getElementById('a-date').value;
+  const contenu = document.getElementById('a-contenu').value.trim();
+  if (!titre || !date) { alert('Titre et date obligatoires.'); return; }
+  const fileInput = document.getElementById('a-img-file');
+  let image = '';
+  if (fileInput.files[0]) image = await toBase64(fileInput.files[0]);
+  const dateFormatted = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  D.actualites.push({ titre, date: dateFormatted, contenu, image });
+  document.getElementById('a-titre').value = '';
+  document.getElementById('a-date').value = '';
+  document.getElementById('a-contenu').value = '';
+  fileInput.value = '';
+  document.getElementById('a-img-preview').style.display = 'none';
+  renderActu();
+  toast('Actualité ajoutée.');
+}
+
+function delActu(i) {
+  if (!confirm('Supprimer cette actualité ?')) return;
+  D.actualites.splice(i, 1);
+  renderActu();
+  toast('Supprimé.');
+}
+
+/* ========================
+   AGENDA
+   ======================== */
+function renderAgenda() {
+  const el = document.getElementById('agenda-list-admin');
+  if (!D.agenda.length) { el.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucun événement.</p>'; return; }
+  el.innerHTML = D.agenda.map((e, i) => `
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">${e.titre}</div>
+        <div class="item-sub">${e.date} — ${e.lieu}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" onclick="delAgenda(${i})">Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addAgenda() {
+  const titre = document.getElementById('ag-titre').value.trim();
+  const dateRaw = document.getElementById('ag-date').value;
+  const lieu = document.getElementById('ag-lieu').value.trim();
+  const description = document.getElementById('ag-desc').value.trim();
+  if (!titre || !dateRaw || !lieu) { alert('Titre, date et lieu obligatoires.'); return; }
+  const dateFormatted = new Date(dateRaw + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  D.agenda.push({ titre, date: dateFormatted, date_raw: dateRaw, lieu, description });
+  document.getElementById('ag-titre').value = '';
+  document.getElementById('ag-date').value = '';
+  document.getElementById('ag-lieu').value = '';
+  document.getElementById('ag-desc').value = '';
+  renderAgenda();
+  toast('Événement ajouté.');
+}
+
+function delAgenda(i) {
+  if (!confirm('Supprimer cet événement ?')) return;
+  D.agenda.splice(i, 1);
+  renderAgenda();
+  toast('Supprimé.');
+}
+
+/* ========================
+   BOURSES
+   ======================== */
+function renderBourses() {
+  const el = document.getElementById('bourses-list');
+  el.innerHTML = D.bourses.map((b, i) => `
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">${b.titre}</div>
+        <div class="item-sub">${b.fichier ? 'PDF chargé' : 'Aucun fichier'}</div>
+      </div>
+      <div class="item-actions">
+        <label class="btn btn-ghost" style="cursor:pointer">
+          ${b.fichier ? 'Remplacer' : 'Charger PDF'}
+          <input type="file" accept=".pdf,application/pdf" style="display:none" onchange="loadBourcePDF(this, ${i})">
+        </label>
+        ${b.fichier ? `<button class="btn btn-danger" onclick="clearBourse(${i})">Retirer</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadBourcePDF(input, i) {
+  const file = input.files[0];
+  if (!file) return;
+  const b64 = await toBase64(file);
+  D.bourses[i].fichier = b64;
+  renderBourses();
+  toast('PDF chargé.');
+}
+
+function clearBourse(i) {
+  D.bourses[i].fichier = '';
+  renderBourses();
+  toast('Fichier retiré.');
+}
+
+/* ========================
+   GALERIE
+   ======================== */
+function renderGalerie() {
+  const el = document.getElementById('galerie-list-admin');
+  if (!D.galerie.length) { el.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucune photo.</p>'; return; }
+  el.innerHTML = D.galerie.map((g, i) => `
+    <div class="item-card">
+      <img class="item-thumb" src="${g.image}" alt="">
+      <div class="item-info">
+        <div class="item-title">${g.titre || '(sans légende)'}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" onclick="delGalerie(${i})">Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addGaleriePhotos(input) {
+  const cap = document.getElementById('g-cap').value.trim();
+  const prev = document.getElementById('g-preview-row');
+  prev.innerHTML = '';
+  for (const file of input.files) {
+    const b64 = await toBase64(file);
+    D.galerie.push({ image: b64, titre: cap });
+    const img = document.createElement('img');
+    img.src = b64;
+    img.style.cssText = 'width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #333';
+    prev.appendChild(img);
+  }
+  input.value = '';
+  renderGalerie();
+  toast('Photo(s) ajoutée(s).');
+}
+
+function delGalerie(i) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  D.galerie.splice(i, 1);
+  renderGalerie();
+  toast('Supprimé.');
+}
+
+/* ========================
+   TOAST
+   ======================== */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2200);
+}
+
+/* ========================
+   EXPORT
+   ======================== */
+async function exportSite() {
+  // Lire index.html depuis le même dossier
+  let template;
+  try {
+    const resp = await fetch('index.html');
+    if (!resp.ok) throw new Error();
+    template = await resp.text();
+  } catch(e) {
+    alert('Impossible de lire index.html. Placez admin.html et index.html dans le même dossier, puis ouvrez via un serveur local (ex: Live Server dans VS Code) ou double-cliquez admin.html.');
+    return;
+  }
+
+  // Remplacer le bloc SITE_DATA
+  const newDataScript = `<script id="site-data-script">
+const SITE_DATA = ${JSON.stringify(D, null, 2)};
+<\/script>`;
+
+  const result = template.replace(
+    /<!-- SITE_DATA_START -->[\s\S]*?<!-- SITE_DATA_END -->/,
+    `<!-- SITE_DATA_START -->\n${newDataScript}\n<!-- SITE_DATA_END -->`
+  );
+
+  if (result === template) {
+    alert('Marqueurs SITE_DATA_START / SITE_DATA_END introuvables dans index.html. Vérifiez que vous utilisez le bon fichier index.html.');
+    return;
+  }
+
+  // Télécharger
+  const blob = new Blob([result], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('index.html exporté. Uploadez-le sur GitHub.');
+}
+</script>
+
+</body>
+</html>

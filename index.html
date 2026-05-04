@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASENT - Association des Étudiants Nigériens au Togo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange: #D44000;
+      --orange-light: #f5a06a;
+      --green: #007A35;
+      --dark: #111111;
+      --mid: #2a2a2a;
+      --gray: #f4f3f0;
+      --text: #1a1a1a;
+      --muted: #666;
+      --border: #e0ddd8;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    /* ---- NAV ---- */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--dark);
+      border-bottom: 2px solid var(--orange);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+
+    .nav-logo img {
+      height: 38px;
+      width: 38px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .nav-logo span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: .04em;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 0;
+    }
+
+    .nav-links a {
+      display: block;
+      padding: .5rem .9rem;
+      color: #ccc;
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--orange-light); }
+
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: .5rem; }
+    .nav-toggle span { display: block; width: 22px; height: 2px; background: white; margin: 4px 0; transition: all .3s; }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px; left: 0; right: 0;
+        background: var(--dark);
+        border-bottom: 2px solid var(--orange);
+        padding: .5rem 0;
+      }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: block; }
+    }
+
+    /* ---- SECTIONS ---- */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: .8rem;
+    }
+
+    h2.section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 3rem;
+      line-height: 1.2;
+    }
+
+    h2.section-title.centered { text-align: center; }
+
+    /* ---- HERO ---- */
+    #accueil {
+      padding-top: 100px;
+      min-height: 100vh;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #accueil::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212,64,0,.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--orange);
+      color: white;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem .9rem;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+
+    #accueil h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.1;
+      max-width: 700px;
+      margin-bottom: 1.5rem;
+    }
+
+    #accueil h1 em {
+      font-style: normal;
+      color: var(--orange-light);
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: #aaa;
+      max-width: 500px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-photo {
+      margin-top: 3rem;
+      width: 100%;
+      max-width: 800px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.1);
+      display: none;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item { text-align: left; }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--orange-light);
+      line-height: 1;
+    }
+    .stat-lbl { font-size: .8rem; color: #888; margin-top: .2rem; letter-spacing: .04em; }
+
+    /* ---- A PROPOS ---- */
+    #apropos { background: var(--gray); }
+
+    .apropos-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .armoiries-wrap {
+      text-align: center;
+    }
+
+    .armoiries-wrap img {
+      width: 160px;
+      display: none;
+    }
+
+    .armoiries-placeholder {
+      width: 160px;
+      height: 160px;
+      background: var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      color: var(--muted);
+      margin: 0 auto;
+    }
+
+    .apropos-text p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .apropos-grid { grid-template-columns: 1fr; }
+      .armoiries-wrap { display: none; }
+    }
+
+    /* ---- BUREAU ---- */
+    #bureau { background: var(--white); }
+
+    .bureau-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .bureau-card {
+      background: var(--gray);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .bureau-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+
+    .bureau-card .photo-wrap {
+      width: 100%;
+      height: 190px;
+      background: var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bureau-card .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bureau-card .photo-wrap .no-photo-label {
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .bureau-card .card-info { padding: 1rem; }
+    .bureau-card .card-nom { font-weight: 600; font-size: .9rem; }
+    .bureau-card .card-poste { font-size: .78rem; color: var(--orange); margin-top: .25rem; font-weight: 500; }
+
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      padding: 3rem;
+      font-size: .95rem;
+      grid-column: 1 / -1;
+    }
+
+    /* ---- ACTUALITES ---- */
+    #actualites { background: var(--gray); }
+
+    .actu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .actu-card {
+      background: var(--white);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .actu-card .actu-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .actu-card .actu-body { padding: 1.4rem; }
+    .actu-card .actu-date { font-size: .75rem; color: var(--orange); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .5rem; }
+    .actu-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: .6rem; line-height: 1.4; }
+    .actu-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ---- AGENDA ---- */
+    #agenda { background: var(--white); }
+
+    .agenda-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .agenda-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      padding: 1.5rem;
+      background: var(--gray);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .agenda-date-box {
+      text-align: center;
+      background: var(--orange);
+      color: white;
+      padding: .8rem;
+      border-radius: 4px;
+    }
+
+    .agenda-date-box .ag-day { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; line-height: 1; }
+    .agenda-date-box .ag-month { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; margin-top: .2rem; }
+
+    .agenda-info .ag-titre { font-size: 1.05rem; font-weight: 600; margin-bottom: .4rem; }
+    .agenda-info .ag-lieu { font-size: .83rem; color: var(--muted); margin-bottom: .4rem; }
+    .agenda-info .ag-desc { font-size: .88rem; color: var(--muted); }
+
+    @media (max-width: 500px) {
+      .agenda-item { grid-template-columns: 1fr; }
+    }
+
+    /* ---- BOURSES ---- */
+    #bourses { background: var(--gray); }
+
+    .bourses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .bourse-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2rem;
+      text-align: center;
+      transition: box-shadow .2s;
+    }
+
+    .bourse-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+    .bourse-card .bourse-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .bourse-card h3 {
+      font-size: .95rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .bourse-card .btn-dl {
+      display: inline-block;
+      background: var(--orange);
+      color: white;
+      padding: .55rem 1.4rem;
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: .85rem;
+      font-weight: 500;
+      transition: background .2s;
+    }
+
+    .bourse-card .btn-dl:hover { background: #b83500; }
+    .bourse-card .no-file { font-size: .82rem; color: #bbb; }
+
+    /* ---- GALERIE ---- */
+    #galerie { background: var(--white); }
+
+    .galerie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: .8rem;
+    }
+
+    .galerie-item { position: relative; overflow: hidden; border-radius: 4px; }
+    .galerie-item img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform .3s;
+      display: block;
+    }
+    .galerie-item:hover img { transform: scale(1.04); }
+    .galerie-item .gal-cap {
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+      padding: .35rem 0;
+    }
+
+    /* ---- CONTACT ---- */
+    #contact { background: var(--dark); }
+    #contact .section-label { color: var(--orange-light); }
+    #contact h2.section-title { color: var(--white); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .contact-item { text-align: center; }
+    .contact-icon { font-size: 1.8rem; margin-bottom: .7rem; }
+    .contact-label { font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--orange-light); margin-bottom: .4rem; }
+    .contact-val { font-size: .95rem; color: #bbb; }
+
+    .adhesion-note {
+      margin-top: 3rem;
+      padding: 1.5rem 2rem;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 4px;
+      color: #aaa;
+      font-size: .9rem;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      background: #0a0a0a;
+      color: #444;
+      text-align: center;
+      padding: 1.2rem;
+      font-size: .78rem;
+    }
+
+    /* ---- LIGHTBOX ---- */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.92);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; }
+    #lb-close {
+      position: absolute;
+      top: 1rem; right: 1.5rem;
+      color: white;
+      font-size: 2.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ---- STRIPE DIVIDER ---- */
+    .stripe {
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 33.3%, #fff 33.3%, #fff 66.6%, var(--green) 66.6%, var(--green) 100%);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img id="nav-logo-img" src="" alt="Logo ASENT">
+      <span>ASENT</span>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#accueil">Accueil</a></li>
+      <li><a href="#apropos">À propos</a></li>
+      <li><a href="#bureau">Bureau</a></li>
+      <li><a href="#actualites">Actualités</a></li>
+      <li><a href="#agenda">Agenda</a></li>
+      <li><a href="#bourses">Bourses</a></li>
+      <li><a href="#galerie">Galerie</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ACCUEIL -->
+<section id="accueil">
+  <div class="container hero-content">
+    <span class="hero-tag">Association officielle</span>
+    <h1>Étudiants Nigériens<br>au <em>Togo</em></h1>
+    <p class="hero-desc">Fédérer, représenter et soutenir les étudiants nigériens poursuivant leurs études au Togo.</p>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">150+</div><div class="stat-lbl">Membres actifs</div></div>
+      <div class="stat-item"><div class="stat-num">10</div><div class="stat-lbl">Membres du Bureau</div></div>
+      <div class="stat-item"><div class="stat-num">2006</div><div class="stat-lbl">Année de création</div></div>
+    </div>
+    <img id="hero-photo" class="hero-photo" src="" alt="Bureau Exécutif ASENT">
+  </div>
+</section>
+
+<div class="stripe"></div>
+
+<!-- A PROPOS -->
+<section id="apropos">
+  <div class="container">
+    <p class="section-label">Qui sommes-nous</p>
+    <h2 class="section-title">À propos de l'ASENT</h2>
+    <div class="apropos-grid">
+      <div class="armoiries-wrap">
+        <img id="armoiries-img" src="" alt="Armoiries du Niger">
+        <div class="armoiries-placeholder" id="armoiries-placeholder">Armoiries<br>du Niger</div>
+      </div>
+      <div class="apropos-text">
+        <p>L'ASENT — Association des Étudiants Nigériens au Togo — est l'organisation officielle représentant les étudiants nigériens au Togo. Elle veille à leurs intérêts académiques, sociaux et culturels.</p>
+        <p>Ses missions couvrent la représentation auprès des institutions togolaises et nigériennes, l'accompagnement dans les démarches administratives, l'entraide entre membres, et le renforcement des liens culturels entre les deux pays.</p>
+        <p>L'ASENT organise des activités culturelles, des séances d'orientation et des événements communautaires tout au long de l'année académique.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUREAU EXECUTIF -->
+<section id="bureau">
+  <div class="container">
+    <p class="section-label">Gouvernance</p>
+    <h2 class="section-title">Bureau Exécutif</h2>
+    <div class="bureau-grid" id="bureau-grid">
+      <p class="empty-state">Les membres du Bureau seront affichés ici.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ACTUALITES -->
+<section id="actualites">
+  <div class="container">
+    <p class="section-label">Informations</p>
+    <h2 class="section-title">Actualités</h2>
+    <div class="actu-grid" id="actu-grid">
+      <p class="empty-state">Aucune actualité pour le moment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda">
+  <div class="container">
+    <p class="section-label">Calendrier</p>
+    <h2 class="section-title">Agenda</h2>
+    <div class="agenda-list" id="agenda-list">
+      <p class="empty-state">Aucun événement programmé.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOURSES -->
+<section id="bourses">
+  <div class="container">
+    <p class="section-label">Formulaires</p>
+    <h2 class="section-title">Bourses</h2>
+    <div class="bourses-grid" id="bourses-grid"></div>
+  </div>
+</section>
+
+<!-- GALERIE -->
+<section id="galerie">
+  <div class="container">
+    <p class="section-label">Photos</p>
+    <h2 class="section-title">Galerie</h2>
+    <div class="galerie-grid" id="galerie-grid">
+      <p class="empty-state">Aucune photo dans la galerie.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <p class="section-label">Nous rejoindre</p>
+    <h2 class="section-title">Adhésion & Contact</h2>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="contact-icon">📧</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-val">asent.togo@gmail.com</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📱</div>
+        <div class="contact-label">Téléphone</div>
+        <div class="contact-val">+228 XX XX XX XX</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div class="contact-label">Localisation</div>
+        <div class="contact-val">Lomé, Togo</div>
+      </div>
+    </div>
+    <div class="adhesion-note">
+      Pour adhérer à l'ASENT, prenez contact par email ou auprès de l'un des membres du Bureau Exécutif.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 ASENT — Association des Étudiants Nigériens au Togo. Tous droits réservés.</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <span id="lb-close" onclick="closeLB()">×</span>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<!-- ============================================================ -->
+<!-- SITE_DATA_START -->
+<script id="site-data-script">
+const SITE_DATA = {
+  "logo": "",
+  "photo_groupe": "",
+  "armoiries": "",
+  "bureau": [],
+  "actualites": [],
+  "agenda": [],
+  "bourses": [
+    { "titre": "Formulaire d'activation de bourse", "fichier": "" },
+    { "titre": "Formulaire de renouvellement de bourse", "fichier": "" },
+    { "titre": "Formulaire 2e cycle", "fichier": "" }
+  ],
+  "galerie": []
+};
+</script>
+<!-- SITE_DATA_END -->
+<!-- ============================================================ -->
+
+<script>
+function toggleNav() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+
+function openLB(src) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLB() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLB();
+});
+
+function formatAgendaDate(dateStr) {
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return {
+      day: d.toLocaleDateString('fr-FR', { day: '2-digit' }),
+      month: d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '').toUpperCase()
+    };
+  } catch(e) {
+    return { day: '--', month: '---' };
+  }
+}
+
+function render() {
+  // Logo
+  if (SITE_DATA.logo) {
+    const logo = document.getElementById('nav-logo-img');
+    logo.src = SITE_DATA.logo;
+    logo.style.display = 'block';
+  }
+
+  // Photo de groupe
+  if (SITE_DATA.photo_groupe) {
+    const p = document.getElementById('hero-photo');
+    p.src = SITE_DATA.photo_groupe;
+    p.style.display = 'block';
+  }
+
+  // Armoiries
+  if (SITE_DATA.armoiries) {
+    const img = document.getElementById('armoiries-img');
+    img.src = SITE_DATA.armoiries;
+    img.style.display = 'block';
+    document.getElementById('armoiries-placeholder').style.display = 'none';
+  }
+
+  // Bureau
+  const bureauGrid = document.getElementById('bureau-grid');
+  if (SITE_DATA.bureau && SITE_DATA.bureau.length > 0) {
+    bureauGrid.innerHTML = SITE_DATA.bureau.map(m => `
+      <div class="bureau-card">
+        <div class="photo-wrap">
+          ${m.photo
+            ? `<img src="${m.photo}" alt="${m.nom}">`
+            : `<div class="no-photo-label">Photo à venir</div>`}
+        </div>
+        <div class="card-info">
+          <div class="card-nom">${m.nom}</div>
+          <div class="card-poste">${m.poste}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Actualites
+  const actuGrid = document.getElementById('actu-grid');
+  if (SITE_DATA.actualites && SITE_DATA.actualites.length > 0) {
+    actuGrid.innerHTML = SITE_DATA.actualites.map(a => `
+      <div class="actu-card">
+        ${a.image ? `<img class="actu-img" src="${a.image}" alt="${a.titre}">` : ''}
+        <div class="actu-body">
+          <div class="actu-date">${a.date}</div>
+          <h3>${a.titre}</h3>
+          <p>${a.contenu}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Agenda
+  const agendaList = document.getElementById('agenda-list');
+  if (SITE_DATA.agenda && SITE_DATA.agenda.length > 0) {
+    agendaList.innerHTML = SITE_DATA.agenda.map(e => {
+      const parts = formatAgendaDate(e.date_raw || e.date);
+      return `
+        <div class="agenda-item">
+          <div class="agenda-date-box">
+            <div class="ag-day">${parts.day}</div>
+            <div class="ag-month">${parts.month}</div>
+          </div>
+          <div class="agenda-info">
+            <div class="ag-titre">${e.titre}</div>
+            <div class="ag-lieu">📍 ${e.lieu}</div>
+            ${e.description ? `<div class="ag-desc">${e.description}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Bourses
+  const bourseGrid = document.getElementById('bourses-grid');
+  if (SITE_DATA.bourses && SITE_DATA.bourses.length > 0) {
+    bourseGrid.innerHTML = SITE_DATA.bourses.map(b => `
+      <div class="bourse-card">
+        <div class="bourse-icon">📄</div>
+        <h3>${b.titre}</h3>
+        ${b.fichier
+          ? `<a class="btn-dl" href="${b.fichier}" download="${b.titre}.pdf">Télécharger</a>`
+          : `<span class="no-file">Fichier non disponible</span>`}
+      </div>
+    `).join('');
+  }
+
+  // Galerie
+  const galerieGrid = document.getElementById('galerie-grid');
+  if (SITE_DATA.galerie && SITE_DATA.galerie.length > 0) {
+    galerieGrid.innerHTML = SITE_DATA.galerie.map(g => `
+      <div class="galerie-item">
+        <img src="${g.image}" alt="${g.titre || ''}" onclick="openLB('${g.image}')">
+        ${g.titre ? `<div class="gal-cap">${g.titre}</div>` : ''}
+      </div>
+    `).join('');
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
